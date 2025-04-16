@@ -11,6 +11,14 @@ app.use(cors());
 app.use(express.json());
 
 // API路由
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ok',
+    message: 'API服务正常运行',
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -51,7 +59,8 @@ app.use((req, res) => {
   res.status(404).json({
     error: {
       status: 404,
-      message: '未找到请求的资源'
+      message: '未找到请求的资源',
+      path: req.path
     }
   });
 });
@@ -59,6 +68,9 @@ app.use((req, res) => {
 // 导出serverless函数处理器
 const handler = serverless(app);
 module.exports.handler = async (event, context) => {
+  console.log('请求路径:', event.path);
+  console.log('请求方法:', event.httpMethod);
+  
   const result = await handler(event, context);
   
   // 添加缓存控制头
